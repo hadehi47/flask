@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container-fluid {
+            padding: 0;
+        }
+        .sidebar {
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .sidebar h3 {
+            padding: 0 20px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 10px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #ddd;
+        }
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .table th, .table td {
+            text-align: center;
+        }
+        .api-key-container {
+            display: none;
+            margin-top: 20px;
+        }
+        .api-key-container pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #000000;
+            color: #f8f9fa;
+        }
+        .sidebar.dark-mode {
+            background-color: #000000;
+        }
+        .sidebar.dark-mode a {
+            color: #f8f9fa;
+        }
+        .sidebar.dark-mode a:hover {
+            background-color: #000000;
+        }
+        .main-content.dark-mode {
+            background-color: #000000;
+        }
+        .api-key-container.dark-mode pre {
+            background-color: #000000;
+            color: #f8f9fa;
+        }
+        .table.dark-mode {
+            background-color: #000000;
+            color: #f8f9fa;
+        }
+        
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <h3>Admin Dashboard</h3>
+        <a href="#apiManagement">API Management</a>
+        <a href="#apiLogs">API Logs</a>
+        <!-- Add more links as needed -->
+        </form>
+        <!-- Dark Mode Toggle Button -->
+        <button id="dark-mode-toggle" class="btn btn-secondary mt-3">
+            Toggle Dark Mode
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="mb-4">Admin Dashboard</h1>
+
+        <!-- API Management Section -->
+        <div id="apiManagement" class="mb-3">
+            <form method="POST" action="{{ url_for('toggle_api') }}" class="d-inline">
+                <button type="submit" class="btn btn-primary">
+                    {% if api_enabled %}
+                        Disable API
+                    {% else %}
+                        Enable API
+                    {% endif %}
+                </button>
+            </form>
+            <form method="POST" action="{{ url_for('generate_api_password') }}" class="d-inline ml-2">
+                <button type="submit" class="btn btn-secondary">
+                    Generate New API Password
+                </button>
+            </form>
+            <button class="btn btn-info ml-2" data-toggle="modal" data-target="#apiKeyModal">
+                Show API Key
+            </button>
+        </div>
+
+        <!-- API Key Modal -->
+        <div class="modal fade" id="apiKeyModal" tabindex="-1" role="dialog" aria-labelledby="apiKeyModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="apiKeyModalLabel">API Key and Password</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <pre id="api-key-display"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <!-- API Logs Section -->
+        <h2 id="apiLogs" class="mb-4">API Logs</h2>
+        <input class="form-control mb-3" id="log-search" type="text" placeholder="Search logs...">
+        <table class="table table-striped" id="logs-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Timestamp</th>
+                    <th>City</th>
+                    <th>IP Address</th>
+                    <th>User Agent</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ log.city }}</td>
+                    <td>{{ log.ip_address }}</td>
+                    <td>{{ log.user_agent }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- JS Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $('#show-api-key-btn').on('click', function() {
+            $.post('{{ url_for('show_api_key') }}', function(data) {
+                $('#api-key-display').text(`API Key: ${data.api_key}\nAPI Password: ${data.api_password}`);
+            });
+        });
+
+        // Search functionality for logs
+        $('#log-search').on('keyup', function() {
+            var value = $(this).val().toLowerCase();
+            $('#logs-table tbody tr').filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
+        });
+
+        // Toggle dark mode
+        $('#dark-mode-toggle').on('click', function() {
+            $('body').toggleClass('dark-mode');
+            $('.sidebar').toggleClass('dark-mode');
+            $('.main-content').toggleClass('dark-mode');
+            $('.api-key-container').toggleClass('dark-mode');
+        });
+    </script>
+</body>
+
+</html>
